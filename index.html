@@ -20,42 +20,32 @@
 </head>
 <body>
   <div id="app">
-    <svg id="container" xmlns="http://www.w3.org/2000/" width="400" height="900" style="transform: translateX(0)">
+    <svg id="container" xmlns="http://www.w3.org/2000/" width="100%" height="100%" viewBox="0 0 300 900"style="transform: translateX(0)">
       <mask id="maskstraw">
         <rect id="maskstraw-rect" x="0" y="300" width="400" height="900" fill="white"></rect>
       </mask>
-      <mask id="maskwater">
-        <rect id="maskwater-rect" x="0" y="300" width="400" height="900" fill="white"></rect>
-      </mask>
       <mask id="maskwaterwave">
-        <path id="maskwaterwave-path" style="transform: translateY(0)"  d="M 0 300 V 600 H 400 V 300 H 0 Z" fill="white">
+        <polygon id="maskwaterwave-path" points="25,240 275,240 240,590 60,590" fill="white"></polygon>
+      </mask>
+      <polygon id="cup-body" points="15,240 285,240 250,600 50,600" fill="orange"></polygon>
+      <g mask="url(#maskwaterwave)">
+        <path id="cup-body-wtaer" d="M 0 300 V 600 H 400 V 300 H 0 Z" fill="DeepSkyBlue" >
           <animate
-            id="maskwaterwave-anim"
-            repeatCount="2"
-            fill="white"
-            attributeName="d"
-            dur="1000ms"
-            attributeType="XML"
+            id="maskwaterwave-anim" begin="indefinite" repeatCount="3" fill="white" attributeName="d" dur="1s" attributeType="XML"
             values="
               M 0 300 V 600 H 400 V 300 H 0 Z;
               M 0 300 V 600 H 400 V 300 C 300 300 100 300 0 300 Z;
               M 0 300 V 600 H 400 V 300 C 300 307 100 293 0 300 Z;
               M 0 300 V 600 H 400 V 300 C 300 315 100 285 0 300 Z;
               M 0 300 V 600 H 400 V 300 C 300 307 100 293 0 300 Z;
-              M 0 300 V 600 H 400 V 300 C 300 300 100 300 0 300 Z;
+              M 0 300 V 600 H 400 V 300 C 300 300 100 300 0 300 Z
             "
-            begin="container.click"
             >
           </animate>
-          </set>
         </path>
-        <!-- <path id="maskwaterwave-path" d="M 0 300 L 0 600 L 400 600 L 400 0  Z" fill="white"></path> -->
-      </mask>
-      <polygon id="cup-body" points="15,240 285,240 250,600 50,600" fill="orange"></polygon>
-      <polygon id="cup-body-wtaer" points="25,240 275,240 240,590 60,590" fill="DeepSkyBlue" mask="url(#maskwaterwave)"></polygon>
+      </g>
       <polygon id="cup-straw" points="60,585 75,585 265,104 250,100" fill="grey"></polygon>
       <polygon id="cup-straw-inner" points="62,585 73,585 263,104 252,100" fill="DeepSkyBlue" mask="url(#maskstraw)"></polygon>
-      <!-- <polygon id="cup-straw-inner-drink" points="62,585 73,585 263,104 252,100" fill="DeepSkyBlue"></polygon> -->
       <rect id="cup-head" x="0" y="200" width="300" height="40" fill="red"></rect>
     </svg>
     <audio id="drink-audio" src="./drink.wav"></audio>

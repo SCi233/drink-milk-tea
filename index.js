@@ -1,5 +1,6 @@
 import { Tween } from './tween.js';
 import * as Easing from './easing.js';
+import { delay } from './utils.js';
 
 const tweens = new Set();
 
@@ -9,7 +10,11 @@ const maskStrawRect = document.querySelector('#maskstraw-rect');
 const cupBodyWtaer = document.querySelector('#cup-body-wtaer');
 const maskWaterWavePath = document.querySelector('#maskwaterwave-path');
 const maskWaterWaveAnim = document.querySelector('#maskwaterwave-anim');
-const bgCircle = document.querySelector('#bg-circle');
+const bgCircle = document.querySelector('#bg-circle-front');
+
+const drinkCapacity = 20;
+
+let isLongPress = false;
 
 const playAudio = () => {
   if (drinkAudio) {
@@ -68,23 +73,76 @@ const circleProxy = new Proxy({}, {
   }
 });
 
+const handleClickCup = () => {
+  console.log('container clicked');
+  let curY = waterProxy.y;
+  curY = (curY + drinkCapacity) < 587 ? curY + drinkCapacity : 587;
+  if (curY >= 0) {
+    // waterProxy.y = curY;
+    const tween = new Tween({
+      targets: [waterProxy],
+      attrs: {
+        y: curY,
+      },
+      duration: 1000,
+      easing: Easing.Cubic.InOut,
+    });
+    tweens.add(tween);
+    tween.start();
+  }
+  playAudio();
+  playWaterWobbleAnim();
+};
+
+const updateWater = (elapsedTime) => {
+  if (isLongPress) {
+    let curY = waterProxy.y;
+    const newY = (curY + 0.3) < 587 ? curY + 0.3 : 587;
+    waterProxy.y = newY;
+  }
+}
+
+const setupTouchEvents = () => {
+  let touchStartTime;
+  let longPressTimerDisposer;
+
+  container.addEventListener('touchstart', () => {
+    touchStartTime = window.performance.now();
+    console.log('container touchstart', touchStartTime);
+
+    const {
+      promise: delayPromise,
+      disposer: delayDisposer,
+    } = delay(350);
+    longPressTimerDisposer = delayDisposer;
+
+    delayPromise.then(() => {
+      isLongPress = true;
+    });
+  });
+
+  container.addEventListener('touchend', () => {
+    console.log('container touchend', window.performance.now());
+
+    longPressTimerDisposer();
+
+    if (!isLongPress) {
+      handleClickCup();
+    } else {
+      isLongPress = false;
+    }
+  });
+}
+
 const setupEvents = () => {
   console.log('setupEvents');
-  container.addEventListener('click', () => {
-    console.log('body clicked');
-    let curY = waterProxy.y;
-    curY = (curY + 50) < 587 ? curY + 50 : 587;
-    if (curY >= 0) {
-      waterProxy.y = curY;
-    }
-    playAudio();
-    playWaterWobbleAnim();
-  });
+  setupTouchEvents();
 }
 
 const mainLoop = (timestamp) => {
   // console.log('mainLoop', timestamp);
   tweens.forEach(tween => tween.update(timestamp));
+  updateWater();
   window.requestAnimationFrame(mainLoop);
 }
 
@@ -98,9 +156,10 @@ window.onload = () => {
     attrs: {
       r: 600,
     },
-    duration: 600,
-    easing: Easing.Linear.None,
+    duration: 1000,
+    easing: Easing.Cubic.InOut,
   });
   tweens.add(tween);
+  // delay(2000).promise.then(() => tween.start());
   // tween.start();
 }

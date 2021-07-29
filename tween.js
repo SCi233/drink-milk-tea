@@ -79,13 +79,14 @@ export class Tween {
 
     const now = Date.now();
     const totalElapsedTime = now - this.startTime - this.pausedDuration;
-    let progress = totalElapsedTime / this.duration;
-    if (this.easing) {
-      progress = this.easing(progress);
-    }
-    if (progress > 1) {
-      progress = 1;
+    let originProgress = totalElapsedTime / this.duration;
+    if (originProgress > 1) {
+      originProgress = 1;
       this.state = TWEEN_STATE.STOP;
+    }
+    let progress = originProgress;
+    if (this.easing) {
+      progress = this.easing(originProgress);
     }
 
     this.targetStatesMap.forEach((attrStates, target) => {

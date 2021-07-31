@@ -15,6 +15,7 @@ const bgCircle = document.querySelector('#bg-circle-front');
 const drinkCapacity = 20;
 
 let isLongPress = false;
+let isPlayingWaveAnim = false;
 
 const playAudio = () => {
   if (drinkAudio) {
@@ -27,9 +28,16 @@ const playAudio = () => {
 }
 
 const playWaterWobbleAnim = () => {
-  if (maskWaterWaveAnim) {
-    maskWaterWaveAnim.beginElement();
+  if (!maskWaterWaveAnim) {
+    return;
   }
+
+  if (isPlayingWaveAnim) {
+    return;
+  }
+
+  isPlayingWaveAnim = true;
+  maskWaterWaveAnim.beginElement();
 }
 
 const waterProxy = new Proxy({}, {
@@ -77,6 +85,7 @@ const handleClickCup = () => {
   console.log('container clicked');
   let curY = waterProxy.y;
   curY = (curY + drinkCapacity) < 587 ? curY + drinkCapacity : 587;
+  let waveAnimDelay = 0;
   if (curY >= 0) {
     // waterProxy.y = curY;
     const tween = new Tween({
@@ -89,9 +98,11 @@ const handleClickCup = () => {
     });
     tweens.add(tween);
     tween.start();
+
+    waveAnimDelay = 200;
   }
+  delay(waveAnimDelay).promise.then(() => playWaterWobbleAnim());
   playAudio();
-  playWaterWobbleAnim();
 };
 
 const updateWater = (elapsedTime) => {
@@ -106,7 +117,7 @@ const setupTouchEvents = () => {
   let touchStartTime;
   let longPressTimerDisposer;
 
-  container.addEventListener('touchstart', () => {
+  const handleTouchStart = () => {
     touchStartTime = window.performance.now();
     console.log('container touchstart', touchStartTime);
 
@@ -119,9 +130,9 @@ const setupTouchEvents = () => {
     delayPromise.then(() => {
       isLongPress = true;
     });
-  });
+  };
 
-  container.addEventListener('touchend', () => {
+  const handleTouchEnd = () => {
     console.log('container touchend', window.performance.now());
 
     longPressTimerDisposer();
@@ -131,6 +142,15 @@ const setupTouchEvents = () => {
     } else {
       isLongPress = false;
     }
+  };
+
+  container.addEventListener('touchstart', handleTouchStart);
+  container.addEventListener('touchend', handleTouchEnd);
+  container.addEventListener('mousedown', handleTouchStart);
+  container.addEventListener('mouseup', handleTouchEnd);
+
+  maskWaterWaveAnim.addEventListener('endEvent', () => {
+    isPlayingWaveAnim = false;
   });
 }
 
@@ -157,7 +177,7 @@ window.onload = () => {
       r: 600,
     },
     duration: 1000,
-    easing: Easing.Cubic.InOut,
+    easing: Easing.Cubic.Out,
   });
   tweens.add(tween);
   // delay(2000).promise.then(() => tween.start());

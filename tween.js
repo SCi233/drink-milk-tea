@@ -1,5 +1,7 @@
 // @ts-check
 
+import { EventEmitter } from './event.js';
+
 /**
  * @typedef {Object} TweenOptions
  * @property {Object.<string, any>[]} targets
@@ -16,6 +18,12 @@ const TWEEN_STATE = {
 };
 
 export class Tween {
+  static EVENTS = {
+    START: 'start',
+    PAUSED: 'paused',
+    COMPLETE: 'complete',
+  }
+
   /** @type {TWEEN_STATE}*/
   state = TWEEN_STATE.PAUSED;
 
@@ -39,6 +47,8 @@ export class Tween {
 
   /** @type {number} */
   pausedDuration = 0;
+
+  event = new EventEmitter();
 
   /**
    * @constructor
@@ -82,7 +92,6 @@ export class Tween {
     let originProgress = totalElapsedTime / this.duration;
     if (originProgress > 1) {
       originProgress = 1;
-      this.state = TWEEN_STATE.STOP;
     }
     let progress = originProgress;
     if (this.easing) {
@@ -95,12 +104,20 @@ export class Tween {
         target[key] = v;
       }
     });
+
+    if (originProgress >= 1) {
+      this.state = TWEEN_STATE.STOP;
+      this.event.emit(Tween.EVENTS.COMPLETE);
+    }
   }
 
   start () {
     if (!this.state || this.state === TWEEN_STATE.PAUSED) {
       this.state = TWEEN_STATE.RUNNING;
+    } else {
+      return;
     }
+
     if (!this.startTime) {
       this.startTime = Date.now();
     }
@@ -108,12 +125,30 @@ export class Tween {
       this.pausedDuration += Date.now() - this.pausedTime;
       this.pausedTime = 0;
     }
+
+    this.event.emit(Tween.EVENTS.START);
   }
 
   pause () {
     if (this.state === TWEEN_STATE.RUNNING) {
       this.state = TWEEN_STATE.PAUSED;
       this.pausedTime = Date.now();
+    } else {
+      return;
     }
+
+    this.event.emit(Tween.EVENTS.PAUSED);
+  }
+
+  onStart (cb) {
+    this.event.addEventListener(Tween.EVENTS.START, cb);
+  }
+
+  onPaused (cb) {
+    this.event.addEventListener(Tween.EVENTS.PAUSED, cb);
+  }
+
+  onComplete (cb) {
+    this.event.addEventListener(Tween.EVENTS.COMPLETE, cb);
   }
 }

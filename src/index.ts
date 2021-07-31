@@ -1,15 +1,14 @@
-import { Tween } from './tween.js';
-import * as Easing from './easing.js';
-import { delay } from './utils.js';
+import { Tween, Easing } from './libs/tween';
+import { delay } from './utils';
 
-const tweens = new Set();
+const tweens = new Set<Tween>();
 
 const container = document.querySelector('#container');
-const drinkAudio = document.querySelector('#drink-audio');
+const drinkAudio: HTMLAudioElement = document.querySelector('#drink-audio');
 const maskStrawRect = document.querySelector('#maskstraw-rect');
-const cupBodyWtaer = document.querySelector('#cup-body-wtaer');
+const cupBodyWtaer: SVGPathElement = document.querySelector('#cup-body-wtaer');
 const maskWaterWavePath = document.querySelector('#maskwaterwave-path');
-const maskWaterWaveAnim = document.querySelector('#maskwaterwave-anim');
+const maskWaterWaveAnim: SVGAnimationElement = document.querySelector('#maskwaterwave-anim');
 const bgCircle = document.querySelector('#bg-circle-front');
 
 const drinkCapacity = 20;
@@ -37,10 +36,12 @@ const playWaterWobbleAnim = () => {
   }
 
   isPlayingWaveAnim = true;
-  maskWaterWaveAnim.beginElement();
+  (maskWaterWaveAnim as any).beginElement();
 }
 
-const waterProxy = new Proxy({}, {
+const waterProxy = new Proxy({
+  y: +maskStrawRect.getAttribute('y'),
+}, {
   get: (target, key, receiver) => {
     switch (key) {
       case 'y':
@@ -105,7 +106,7 @@ const handleClickCup = () => {
   playAudio();
 };
 
-const updateWater = (elapsedTime) => {
+const updateWater = (elapsedTime?: number) => {
   if (isLongPress) {
     let curY = waterProxy.y;
     const newY = (curY + 0.3) < 587 ? curY + 0.3 : 587;

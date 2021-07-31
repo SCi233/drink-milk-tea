@@ -3,9 +3,9 @@ export const EVENTS ={
 };
 
 export class EventEmitter {
-  eventMap = new Map();
+  eventMap = new Map<String, ((...args: any[]) => void)[]>();
 
-  addEventListener (eventName, listener) {
+  addEventListener (eventName: string, listener: (...args: any[]) => void) {
     if (!this.eventMap.has(eventName)) {
       this.eventMap.set(eventName, [listener]);
     } else {
@@ -13,7 +13,7 @@ export class EventEmitter {
     }
   }
 
-  removeEventListener (eventName, listener) {
+  removeEventListener (eventName: String, listener: (...args: any[]) => void) {
     if (this.eventMap.has(eventName)) {
       const listeners = this.eventMap.get(eventName);
       const index = listeners.findIndex(el => el === listener);
@@ -23,18 +23,18 @@ export class EventEmitter {
     }
   }
 
-  on (eventName, listener) {
+  on (eventName: string, listener: (...args: any[]) => void) {
     this.addEventListener(eventName, listener);
   }
 
-  once (eventName, listener) {
+  once (eventName: string, listener: { (arg0: any): void; (...args: any[]): void; }) {
     this.addEventListener(eventName, (...args) => {
       this.removeEventListener(eventName, listener);
       listener(...args);
     });
   }
 
-  emit (eventName, ...args) {
+  emit (eventName: string | String, ...args: any[]) {
     if (this.eventMap.has(eventName)) {
       const listeners = this.eventMap.get(eventName);
       listeners.forEach(el => {

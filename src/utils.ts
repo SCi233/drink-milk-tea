@@ -1,7 +1,7 @@
-export const delay = (time) => {
-  let timer;
+export const delay = (time: number) => {
+  let timer: number;
   const promise = new Promise((resolve, reject) => {
-    timer = window.setTimeout(() => resolve(), time);
+    timer = window.setTimeout(resolve, time);
   });
   return {
     promise,

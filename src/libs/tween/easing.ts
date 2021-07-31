@@ -1,16 +1,16 @@
 export const Linear = {
-  None: (amount) => {
+  None: (amount: number): number => {
     return amount
   },
 };
 export const Quadratic = {
-  In: (amount) => {
+  In: (amount: number): number => {
     return amount * amount
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     return amount * (2 - amount)
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     if ((amount *= 2) < 1) {
       return 0.5 * amount * amount
     }
@@ -20,13 +20,13 @@ export const Quadratic = {
 };
 
 export const Cubic = {
-  In: (amount) => {
+  In: (amount: number): number => {
     return amount * amount * amount
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     return --amount * amount * amount + 1
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     if ((amount *= 2) < 1) {
       return 0.5 * amount * amount * amount
     }
@@ -35,13 +35,13 @@ export const Cubic = {
 };
 
 export const Quartic = {
-  In: (amount) => {
+  In: (amount: number): number => {
     return amount * amount * amount * amount
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     return 1 - --amount * amount * amount * amount
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     if ((amount *= 2) < 1) {
       return 0.5 * amount * amount * amount * amount
     }
@@ -51,13 +51,13 @@ export const Quartic = {
 };
 
 export const Quintic = {
-  In: (amount) => {
+  In: (amount: number): number => {
     return amount * amount * amount * amount * amount
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     return --amount * amount * amount * amount * amount + 1
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     if ((amount *= 2) < 1) {
       return 0.5 * amount * amount * amount * amount * amount
     }
@@ -67,25 +67,25 @@ export const Quintic = {
 };
 
 export const Sinusoidal = {
-  In: (amount) => {
+  In: (amount: number): number => {
     return 1 - Math.sin(((1.0 - amount) * Math.PI) / 2)
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     return Math.sin((amount * Math.PI) / 2)
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     return 0.5 * (1 - Math.sin(Math.PI * (0.5 - amount)))
   },
 };
 
 export const Exponential = {
-  In: (amount) => {
+  In: (amount: number): number => {
     return amount === 0 ? 0 : Math.pow(1024, amount - 1)
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     return amount === 1 ? 1 : 1 - Math.pow(2, -10 * amount)
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     if (amount === 0) {
       return 0
     }
@@ -103,13 +103,13 @@ export const Exponential = {
 };
 
 export const Circular = {
-  In: (amount) => {
+  In: (amount: number): number => {
     return 1 - Math.sqrt(1 - amount * amount)
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     return Math.sqrt(1 - --amount * amount)
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     if ((amount *= 2) < 1) {
       return -0.5 * (Math.sqrt(1 - amount * amount) - 1)
     }
@@ -118,7 +118,7 @@ export const Circular = {
 };
 
 export const Elastic = {
-  In: (amount) => {
+  In: (amount: number): number => {
     if (amount === 0) {
       return 0
     }
@@ -129,7 +129,7 @@ export const Elastic = {
 
     return -Math.pow(2, 10 * (amount - 1)) * Math.sin((amount - 1.1) * 5 * Math.PI)
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     if (amount === 0) {
       return 0
     }
@@ -139,7 +139,7 @@ export const Elastic = {
     }
     return Math.pow(2, -10 * amount) * Math.sin((amount - 0.1) * 5 * Math.PI) + 1
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     if (amount === 0) {
       return 0
     }
@@ -159,15 +159,15 @@ export const Elastic = {
 };
 
 export const Back = {
-  In: (amount) => {
+  In: (amount: number): number => {
     const s = 1.70158
     return amount === 1 ? 1 : amount * amount * ((s + 1) * amount - s)
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     const s = 1.70158
     return amount === 0 ? 0 : --amount * amount * ((s + 1) * amount + s) + 1
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     const s = 1.70158 * 1.525
     if ((amount *= 2) < 1) {
       return 0.5 * (amount * amount * ((s + 1) * amount - s))
@@ -177,10 +177,10 @@ export const Back = {
 };
 
 export const Bounce = {
-  In: (amount) => {
+  In: (amount: number): number => {
     return 1 - Bounce.Out(1 - amount)
   },
-  Out: (amount) => {
+  Out: (amount: number): number => {
     if (amount < 1 / 2.75) {
       return 7.5625 * amount * amount
     } else if (amount < 2 / 2.75) {
@@ -191,7 +191,7 @@ export const Bounce = {
       return 7.5625 * (amount -= 2.625 / 2.75) * amount + 0.984375
     }
   },
-  InOut: (amount) => {
+  InOut: (amount: number): number => {
     if (amount < 0.5) {
       return Bounce.In(amount * 2) * 0.5
     }
@@ -199,17 +199,21 @@ export const Bounce = {
   },
 };
 
-export const generatePow = (power = 4,) => {
+export const generatePow = (power = 4,): {
+  In(amount: number): number
+  Out(amount: number): number
+  InOut(amount: number): number
+} => {
   power = power < Number.EPSILON ? Number.EPSILON : power
   power = power > 10000 ? 10000 : power
   return {
-    In: (amount) => {
+    In: (amount: number): number => {
       return amount ** power
     },
-    Out: (amount) => {
+    Out: (amount: number): number => {
       return 1 - (1 - amount) ** power
     },
-    InOut: (amount) => {
+    InOut: (amount: number): number => {
       if (amount < 0.5) {
         return (amount * 2) ** power / 2
       }

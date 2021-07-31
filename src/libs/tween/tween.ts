@@ -1,20 +1,18 @@
 // @ts-check
 
-import { EventEmitter } from './event.js';
+import { EventEmitter } from '../event-emitter';
 
-/**
- * @typedef {Object} TweenOptions
- * @property {Object.<string, any>[]} targets
- * @property {Object.<string, number>} attrs
- * @property {number} duration
- * @property {(progress: number)=>number} easing
- */
+export interface TweenOptions {
+  targets: Record<string, any>[];
+  attrs: Record<string, number>;
+  duration: number;
+  easing?: ((progress: number)=>number);
+};
 
-/** @enum {number} */
-const TWEEN_STATE = {
-  RUNNING: 1,
-  PAUSED: 2,
-  STOP: 3,
+export enum TWEEN_STATE {
+  RUNNING = 1,
+  PAUSED,
+  STOP,
 };
 
 export class Tween {
@@ -24,37 +22,25 @@ export class Tween {
     COMPLETE: 'complete',
   }
 
-  /** @type {TWEEN_STATE}*/
-  state = TWEEN_STATE.PAUSED;
+  private state: TWEEN_STATE = TWEEN_STATE.PAUSED;
 
-  /** @type {Object.<string, any>[]}*/
-  targets;
+  private targets: Record<string, any>[];
 
-  /** @type {Map<Object.<string, any>, Object.<string, {from: number, to: number}>>}*/
-  targetStatesMap = new Map();
+  private targetStatesMap: Map<Record<string, any>, Record<string, {from: number, to: number}>> = new Map();
 
-  /** @type {number} */
-  duration;
+  private duration: number;
 
-  /** @type {(progress: number)=>number} */
-  easing;
+  private easing: (progress: number)=>number;
 
-  /** @type {number} */
-  startTime;
+  private startTime: number;
 
-  /** @type {number} */
-  pausedTime;
+  private pausedTime: number;
 
-  /** @type {number} */
-  pausedDuration = 0;
+  private pausedDuration: number = 0;
 
   event = new EventEmitter();
 
-  /**
-   * @constructor
-   * @param {TweenOptions} options
-   */
-  constructor (options) {
+  constructor (options: TweenOptions) {
     const { targets, attrs, duration, easing, } = options;
 
     this.targets = targets;
@@ -63,8 +49,7 @@ export class Tween {
 
     this.targets.forEach(target => {
       const keys = Object.keys(attrs);
-      /** @type {Object.<string, {from: number, to: number}>} */
-      const attrStates = {}
+      const attrStates: { [s: string]: { from: number; to: number; }; } = {}
       for (const key of keys) {
         const value = target[key];
         if (value !== null || value !== undefined) {
@@ -78,11 +63,7 @@ export class Tween {
     });
   }
 
-  /**
-   * @param {number} [elapsedTime]
-   * @returns void
-   */
-  update (elapsedTime) {
+  update (elapsedTime: number) {
     if (this.state !== TWEEN_STATE.RUNNING) {
       return;
     }
@@ -140,15 +121,15 @@ export class Tween {
     this.event.emit(Tween.EVENTS.PAUSED);
   }
 
-  onStart (cb) {
+  onStart (cb: (...args: any[]) => void) {
     this.event.addEventListener(Tween.EVENTS.START, cb);
   }
 
-  onPaused (cb) {
+  onPaused (cb: (...args: any[]) => void) {
     this.event.addEventListener(Tween.EVENTS.PAUSED, cb);
   }
 
-  onComplete (cb) {
+  onComplete (cb: (...args: any[]) => void) {
     this.event.addEventListener(Tween.EVENTS.COMPLETE, cb);
   }
 }

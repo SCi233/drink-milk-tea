@@ -48,12 +48,19 @@ export const playRiseAnim = () => {
     duration: 200,
     easing: Easing.Quadratic.In,
   });
-  const handleAnimEnd = () => isPlayingRisingAnim = false;
+  const handleAnimEnd = () => {
+    isPlayingRisingAnim = false;
+
+    const curMaskY = +maskStrawRect.getAttribute('y');
+    if (curMaskY >= MAX_WATER_MASK_Y) {
+      playDropAnim(1);
+    }
+  }
   tween.onComplete(handleAnimEnd);
   tween.onStop(handleAnimEnd);
 };
 
-export const playDropAnim = () => {
+export const playDropAnim = (duration: number = 160) => {
   const curMaskY = +maskStrawDrinkingRect.getAttribute('y');
   if (curMaskY >= MAX_WATER_MASK_Y) {
     return;
@@ -64,7 +71,7 @@ export const playDropAnim = () => {
     tweenManager.add({
       targets: [strawProxy],
       attrs: { y: targetY, },
-      duration: 160,
+      duration,
       easing: Easing.Quadratic.Out,
     });
   }

@@ -21,11 +21,18 @@ const updateWater = (elapsedTime?: number) => {
   if (isLongPress && !isPlayingLongPressAnim) {
     isPlayingLongPressAnim = true;
     const doPlayDrinkAnim = () => {
+      AudioManager.playAudio(AudioManager.AUDIOS.DRINK);
+      StrawAnimManager.playRiseAnim();
       WaterAnimManager.playDrinkAnim({})
         .then(() => {
-          isLongPress && doPlayDrinkAnim();
-        });
-      AudioManager.playAudio(AudioManager.AUDIOS.DRINK);
+          if (isLongPress) {
+            doPlayDrinkAnim()
+          } else {
+            isPlayingLongPressAnim = false;
+            StrawAnimManager.playDropAnim()
+          }
+        })
+        .catch((error) => { console.warn(error); });
     };
     doPlayDrinkAnim();
   }
@@ -37,7 +44,7 @@ const setupTouchEvents = () => {
 
   const handleTouchStart = () => {
     touchStartTime = window.performance.now();
-    // console.log('container touchstart', touchStartTime);
+    console.log('container touchstart', touchStartTime);
 
     const {
       promise: delayPromise,
@@ -46,18 +53,20 @@ const setupTouchEvents = () => {
     longPressTimerDisposer = delayDisposer;
 
     delayPromise.then(() => {
+      console.log('start long press.');
       isLongPress = true;
     });
   };
 
   const handleTouchEnd = () => {
-    // console.log('container touchend', window.performance.now());
+    console.log('container touchend', window.performance.now());
 
     longPressTimerDisposer();
 
     if (!isLongPress) {
       handleClickCup();
     } else {
+      console.log('end long press.');
       isLongPress = false;
     }
   };

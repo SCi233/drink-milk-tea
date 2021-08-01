@@ -8,7 +8,7 @@ module.exports = {
   entry: './src/index.ts',
   output: {
     path: path.resolve(__dirname, './dist'),
-    filename: 'bundle.[hash].js',
+    filename: 'bundle.[fullhash].js',
   },
   devtool: 'source-map',
   resolve: {

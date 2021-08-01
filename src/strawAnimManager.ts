@@ -6,6 +6,8 @@ const maskStrawRect = document.querySelector('#maskstraw-rect');
 
 const tweenManager = new TweenManager();
 
+let isPlayingRisingAnim = false;
+
 const strawProxy = new Proxy({
   y: +maskStrawDrinkingRect.getAttribute('y'),
 }, {
@@ -29,17 +31,26 @@ const strawProxy = new Proxy({
 });
 
 export const playRiseAnim = () => {
+  if (isPlayingRisingAnim) {
+    return;
+  }
+
   const curMaskY = +maskStrawDrinkingRect.getAttribute('y');
   if (curMaskY >= MAX_WATER_MASK_Y) {
     return;
   }
 
-  tweenManager.add({
+  isPlayingRisingAnim = true;
+
+  const tween = tweenManager.add({
     targets: [strawProxy],
     attrs: { y: 100 },
     duration: 200,
     easing: Easing.Quadratic.In,
   });
+  const handleAnimEnd = () => isPlayingRisingAnim = false;
+  tween.onComplete(handleAnimEnd);
+  tween.onStop(handleAnimEnd);
 };
 
 export const playDropAnim = () => {

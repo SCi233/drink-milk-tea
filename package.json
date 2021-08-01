@@ -5,8 +5,8 @@
   "scripts": {
     "build": "npx webpack --config ./webpack.config.js",
     "serve": "npx webpack serve --config ./webpack.config.dev.js --open",
-    "predeploy": "npm build",
-    "deploy": "npx gh-pages -d dist"
+    "predeploy": "npm run build",
+    "deploy": "npx gh-pages -o github -d dist"
   },
   "keywords": [],
   "author": "SCi233",

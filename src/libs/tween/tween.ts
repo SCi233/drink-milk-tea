@@ -20,6 +20,7 @@ export class Tween {
     START: 'start',
     PAUSED: 'paused',
     COMPLETE: 'complete',
+    STOP: 'stop',
   }
 
   private state: TWEEN_STATE = TWEEN_STATE.PAUSED;
@@ -38,7 +39,7 @@ export class Tween {
 
   private pausedDuration: number = 0;
 
-  event = new EventEmitter();
+  private event = new EventEmitter();
 
   constructor (options: TweenOptions) {
     const { targets, attrs, duration, easing, } = options;
@@ -93,11 +94,11 @@ export class Tween {
   }
 
   start () {
-    if (!this.state || this.state === TWEEN_STATE.PAUSED) {
-      this.state = TWEEN_STATE.RUNNING;
-    } else {
+    if (this.state && this.state !== TWEEN_STATE.PAUSED) {
       return;
     }
+
+    this.state = TWEEN_STATE.RUNNING;
 
     if (!this.startTime) {
       this.startTime = Date.now();
@@ -111,14 +112,22 @@ export class Tween {
   }
 
   pause () {
-    if (this.state === TWEEN_STATE.RUNNING) {
-      this.state = TWEEN_STATE.PAUSED;
-      this.pausedTime = Date.now();
-    } else {
+    if (this.state !== TWEEN_STATE.RUNNING) {
       return;
     }
 
+    this.state = TWEEN_STATE.PAUSED;
+    this.pausedTime = Date.now();
     this.event.emit(Tween.EVENTS.PAUSED);
+  }
+
+  stop () {
+    if (this.state === TWEEN_STATE.STOP) {
+      return;
+    }
+
+    this.state = TWEEN_STATE.STOP
+    this.event.emit(Tween.EVENTS.STOP);
   }
 
   onStart (cb: (...args: any[]) => void) {
@@ -131,5 +140,9 @@ export class Tween {
 
   onComplete (cb: (...args: any[]) => void) {
     this.event.addEventListener(Tween.EVENTS.COMPLETE, cb);
+  }
+
+  onStop (cb: (...args: any[]) => void) {
+    this.event.addEventListener(Tween.EVENTS.STOP, cb);
   }
 }

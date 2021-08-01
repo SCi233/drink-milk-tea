@@ -22,6 +22,8 @@ const tweenManager = new TweenManager();
 let isPlayingWaveAnim = false;
 let waveAnimQueue = 0;
 
+let runningWaveAnimDisposer: () => void;
+
 const waterProxy = new Proxy({
   y: +maskStrawRect.getAttribute('y'),
 }, {
@@ -75,7 +77,8 @@ if (maskWaterWaveAnim) {
 }
 
 const playWaterDownAnim = (targetY: number, duration: number) => {
-  return new Promise<void>((resolve, reject) => {
+  let disposer: () => void;
+  const promise = new Promise<void>((resolve, reject) => {
     const tween = tweenManager.add({
       targets: [waterProxy],
       attrs: { y: targetY, },
@@ -84,9 +87,18 @@ const playWaterDownAnim = (targetY: number, duration: number) => {
     });
     tween.onComplete(() => {
       console.log('complete.');
+      runningWaveAnimDisposer = () => {};
       resolve();
     });
+
+    disposer = () => {
+      tween.stop();
+      runningWaveAnimDisposer = () => {};
+      reject('anim cancel.');
+    };
   });
+
+  return { promise, disposer }
 };
 
 const calTargetY = (offsetY: number): number => {
@@ -108,6 +120,8 @@ export const playDrinkAnim = (options: Options) => {
   if (targetY <= 0) {
     return Promise.resolve();
   } else {
+    runningWaveAnimDisposer?.();
+
     if (waveAnimQueue > 0) {
       waveAnimQueue = 3;
     } else {
@@ -117,6 +131,9 @@ export const playDrinkAnim = (options: Options) => {
       });
     }
 
-    return playWaterDownAnim(targetY, duration);
+    const { promise, disposer } = playWaterDownAnim(targetY, duration);
+    runningWaveAnimDisposer = disposer;
+
+    return promise;
   }
 };

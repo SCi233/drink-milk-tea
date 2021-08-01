@@ -10,10 +10,11 @@ let isPlayingLongPressAnim = false;
 
 const handleClickCup = () => {
   console.log('container clicked');
+  AudioManager.playAudio(AudioManager.AUDIOS.DRINK);
   StrawAnimManager.playRiseAnim();
   WaterAnimManager.playDrinkAnim({})
-    .then(() => StrawAnimManager.playDropAnim());
-  AudioManager.playAudio(AudioManager.AUDIOS.DRINK);
+    .then(() => StrawAnimManager.playDropAnim())
+    .catch((error) => { console.warn(error); });
 };
 
 const updateWater = (elapsedTime?: number) => {
